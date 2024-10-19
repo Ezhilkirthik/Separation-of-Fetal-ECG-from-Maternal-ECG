@@ -1,0 +1,9 @@
+PyQt5==5.15.9
+numpy==1.25.2
+pyaudio==0.2.13
+scipy==1.11.2
+pyqtgraph==0.13.3
+pyedflib==0.1.30
+sounddevice==0.4.6
+fpdf==1.7.2
+
