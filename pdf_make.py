@@ -3,7 +3,7 @@ from fpdf import FPDF
 import os
 
 try:
-    def generate_pdf_report(filename,name,age,dob,mh,fh):
+    def generate_pdf_report(filename,name,age,dob,mh,fh,mf,ff):
         class AdvancedReport(FPDF):
             def header(self):
                 self.set_font("Arial", "B", 12)
@@ -19,8 +19,34 @@ try:
                 # Draw page border again for consistency in footer
                 self.rect(10, 10, 190, 277)
 
+        def generate_doctor_notes(maternal_hr, fetal_hr, maternal_freq, fetal_freq):
+            observation = f'Maternal Heart rate Frequency is: {maternal_freq:.2f}\nFetal Heart rate Frequency is: {fetal_freq:.2f}\n'
+            if 60 <= maternal_hr <= 100 and 110 <= fetal_hr <= 160:
+                observation += "Both maternal and fetal heart rates are within the normal range. No significant abnormalities detected.\n"
+            elif maternal_hr < 60:
+                observation += "Maternal bradycardia observed. Could indicate an underlying cardiovascular issue requiring further examination.\n"
+            elif maternal_hr > 100:
+                observation += "Maternal tachycardia detected. May be caused by anxiety, stress, or a medical condition. Further assessment advised.\n"
+            elif fetal_hr < 100:
+                observation += "Fetal bradycardia observed. Immediate medical intervention may be necessary.\n"
+            elif fetal_hr > 160:
+                observation += "Fetal tachycardia detected. This could be a sign of distress or other complications. Requires monitoring and further testing.\n"
+            
+            # Frequency conditions
+            if maternal_freq < 0.8:
+                observation += " Low frequency in maternal ECG signal detected. Possible signal distortion or abnormal cardiac function.\n"
+            elif fetal_freq < 4.0:
+                observation += " Low frequency in fetal ECG signal detected. Could be interference or fetal movement.\n"
+            elif maternal_freq > 5:
+                observation += " High-frequency components in maternal ECG detected. May indicate noise or arrhythmias.\n"
+            elif fetal_freq > 13:
+                observation += " High-frequency signals detected in fetal ECG. Possible interference or fetal movement.\n"
+
+            return observation
+
+        doctor_notes = generate_doctor_notes(maternal_hr=mh, fetal_hr=fh, maternal_freq=mf, fetal_freq=ff)
         # Function to generate a well-organized advanced report
-        def generate_advanced_report(patient_name, patient_age, maternal_hr, fetal_hr, doctor_notes="No significant abnormalities observed."):       
+        def generate_advanced_report(patient_name, patient_age, maternal_hr, fetal_hr, doctor_notes = doctor_notes):
             pdf = AdvancedReport()
             pdf.set_auto_page_break(auto=True, margin=15)
             
