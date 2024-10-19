@@ -59,10 +59,10 @@ This section reviews techniques essential for processing ECG signals in maternal
 - A computer with adequate processing power to run signal processing algorithms.
 
 ## References
-- "A Review on Maternal and Fetal ECG Signal Processing" by Sushmitha Vinod, Swarnalatha R (Link)
-- Non-Invasive Fetal ECG Database (Link)
-- Fetal ECG Extraction Using Adaptive Filters (Link)
-- Adaptive filtering in ECG monitoring of the fetal heart rate (Link)
+- "A Review on Maternal and Fetal ECG Signal Processing" by Sushmitha Vinod, Swarnalatha R [Link](https://www.researchgate.net/publication/335500003_A_Review_of_Signal_Processing_Techniques_for_Non-Invasive_Fetal_Electrocardiography)
+- Non-Invasive Fetal ECG Database [Link](https://physionet.org/content/nifecgdb/1.0.0/)
+- Fetal ECG Extraction Using Adaptive Filters [Link](https://www.researchgate.net/publication/277565024_Fetal_ECG_Extraction_Using_Adaptive_Filters)
+- Adaptive filtering in ECG monitoring of the fetal heart rate [Link](https://pubmed.ncbi.nlm.nih.gov/3694088/)
 
 ## License
 This project is licensed under the MIT License - see the LICENSE file for details.
