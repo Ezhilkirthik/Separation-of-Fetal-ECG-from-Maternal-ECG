@@ -31,6 +31,7 @@ def load_ecg_data(file_path):
     with pyedflib.EdfReader(file_path) as f:
         n = f.signals_in_file
         signal_labels = f.getSignalLabels()
+        global ecg_signal
         ecg_signal = f.readSignal(0)
         sample_rate = f.getSampleFrequency(0)
         total_samples = len(ecg_signal)
@@ -60,6 +61,34 @@ def run_adaptive(file_path):
         b, a = iirnotch(normal_notch, quality_factor)
         y = filtfilt(b, a, data)
         return y
+
+    def compute_fft(data_notch, fs, chunk_size):
+        # Prepare to store combined frequency and FFT values
+        f_combined = []
+        fft_values_combined = []
+
+        # Process data in chunks
+        for start in range(0, len(data_notch), chunk_size):
+            end = min(start + chunk_size, len(data_notch))  # Handle the last chunk
+            data_chunk = data_notch[start:end]
+            
+            N = len(data_chunk)
+            if N == 0:  # Skip empty chunks
+                continue
+
+            # Compute frequency array and FFT values for the current chunk
+            f = fftfreq(N, 1/fs)[:N//2]  # Positive frequency components
+            fft_values = np.abs(fft(data_chunk))[:N//2]  # Magnitude of FFT
+
+            # Store the results
+            f_combined.append(f)
+            fft_values_combined.append(fft_values)
+
+        # Concatenate results from all chunks
+        f_combined = np.concatenate(f_combined)
+        fft_values_combined = np.concatenate(fft_values_combined)
+
+        return f_combined, fft_values_combined
 
     # Adaptive Filtering (LMS Algorithm)
     def adaptive_filter(x, d, mu=0.01, order=32):
@@ -144,9 +173,17 @@ def run_adaptive(file_path):
 
     # Time-Frequency Analysis
     # Fast Fourier Transform (FFT)
-    N = len(data_notch)
-    f = fftfreq(N, 1/fs)[:N//2]
-    fft_values = np.abs(fft(data_notch))[:N//2]
+    chunk_size = 1024  # Define your chunk size
+    f, fft_values = compute_fft(ecg_signal, fs, chunk_size)
+    global mf
+    mf = f[np.argmax(fft_values)]
+    print(f'Peak frequency for Maternal: {mf:.2f} Hz\n')
+    
+    chunk_size = 1024  # Define your chunk size
+    f, fft_values = compute_fft(data_notch, fs, chunk_size)
+    global ff
+    ff = f[np.argmax(fft_values)]
+    print(f'Peak frequency for fetal: {ff:.2f} Hz\n')
 
     # Short-Time Fourier Transform (STFT)
     f_stft, t_stft, Zxx = stft(fft_values, fs=fs, nperseg=256)
@@ -311,7 +348,7 @@ class ECGApp(QMainWindow):
             
             if filename:
                 # Generate the PDF report with patient info
-                pdf_make.generate_pdf_report(filename, self.name_input.text(), self.age_input.text(), self.dob_input.text(),maternal_heart_rate,fetal_heart_rate)
+                pdf_make.generate_pdf_report(filename, self.name_input.text(), self.age_input.text(), self.dob_input.text(),maternal_heart_rate,fetal_heart_rate,mf,ff)
 
                 # Show message that report has been saved
                 QMessageBox.information(self, "Report Generated", f"Report saved to {filename}.")
@@ -595,6 +632,8 @@ class ECGApp(QMainWindow):
 
                 elif selected_graph == "Frequency Spectrum of Filtered ECG Signal":
                     self.graph_display_area.plot(f, fft_values, pen='g')
+                    self.graph_display_area.setLabel('bottom', 'Frequency (Hz)')
+                    self.graph_display_area.setLabel('left', 'Magnitude')
                     exporter = ImageExporter(self.graph_display_area.plotItem)
                     exporter.export('fft_fetal_ecg_signal.png')
                     
