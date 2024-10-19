@@ -52,6 +52,8 @@ This section reviews techniques essential for processing ECG signals in maternal
 - Python 3.x
 - Libraries: `numpy`, `scipy`, `PyQt5`, `pyqtgraph`, `pyedflib`, `sounddevice`, `fpdf`
 - Access to PhysioNet Database
+  Download Database here:
+  https://physionet.org/content/nifecgdb/1.0.0/
 
 ### Hardware:
 - A computer with adequate processing power to run signal processing algorithms.
